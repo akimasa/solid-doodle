@@ -1,0 +1,8 @@
+[package]
+name = "rust_openssl"
+version = "0.1.0"
+authors = ["Akimasa Tateba <akimasa@gmail.com>"]
+
+[dependencies]
+openssl = "0.10.11"
+hexdump = "0.1.0"
