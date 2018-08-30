@@ -120,3 +120,4 @@ deploy:
     # TODO you may want to pick a different channel
     CHANNEL: stable
     branch: master
+    appveyor_repo_tag: false
