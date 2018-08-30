@@ -41,10 +41,12 @@ environment:
     - channel: stable
       target: x86_64-pc-windows-msvc
       arch: Win64
+      OPENSSL_DIR: C:\OpenSSL-Win64
   # Stable 32-bit MSVC
     - channel: stable
       target: i686-pc-windows-msvc
       arch: Win32
+      OPENSSL_DIR: C:\OpenSSL-Win32
 
 ### Allowed failures ###
 
