@@ -2,23 +2,43 @@ extern crate openssl;
 use openssl::symm::{encrypt, Cipher};
 extern crate hexdump;
 use hexdump::hexdump;
+use std::io::{BufWriter, Write, SeekFrom, Seek};
+use std::fs::OpenOptions;
 
 fn main() {
 
     println!("Hello, world!");
-    let cipher = Cipher::aes_128_ecb();
-let data = b"Some Crypto Text";
-let key = b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
-let iv = b"\x01\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07";
-let ciphertext = encrypt(
-    cipher,
-    key,
-    Some(iv),
-    data).unwrap();
-    hexdump(&ciphertext);
-    hexdump(&u64_to_u8_arr(65535));
+
     let blk = get_block(1,5);
     hexdump(&blk);
+
+    let mut file = OpenOptions::new().read(true).write(true).create(true).open("testfile.bin").expect("open file error");
+    let endpos = file.seek(SeekFrom::End(0)).expect("seek error") as usize;
+    file.seek(SeekFrom::Start(0)).expect("seek error2");
+    let mut fwriter = BufWriter::new(file);
+    println!("{}", endpos);
+    fwriter.write(&blk).unwrap();
+    let mut pos: usize = 0;
+    let mut blocks: usize = 0;
+    while endpos > pos + 16 {
+        blocks = (endpos - pos) / 16;
+        if blocks > 100000 {
+            blocks = 100000;
+        }
+        // println!("blocks:{}", blocks);
+        if blocks == 0 {
+            break;
+        }
+        let blk = get_block(pos/16,blocks);
+        fwriter.write(&blk).unwrap();
+        pos += blocks * 16;
+    }
+    println!("pos,endpos:{},{}", pos,endpos);
+    if endpos > pos {
+        let blk = get_block(pos/16,1);
+        fwriter.write(&blk[0..(endpos-pos)]).unwrap();
+    }
+    println!("pos,endpos:{},{}", pos,endpos);
 }
 
 fn u64_to_u8_arr(x:u64) -> [u8;16] {
@@ -36,7 +56,7 @@ fn u64_to_u8_arr(x:u64) -> [u8;16] {
 fn get_block(init:usize, len:usize) -> Vec<u8> {
         let cipher = Cipher::aes_128_ecb();
 let mut data = vec![0; len*16];
-let key = b"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+let key = b"\x01\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
 let iv = b"\x01\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07";
 for i in 0..len {
     let blk = u64_to_u8_arr((i+init) as u64);
@@ -44,11 +64,12 @@ for i in 0..len {
         data[i*16+j] = blk[j];
     }
 }
-hexdump(&data);
-let ciphertext = encrypt(
+// hexdump(&data);
+let mut ciphertext = encrypt(
     cipher,
     key,
     Some(iv),
     &data).unwrap();
+    ciphertext.truncate(len*16);
     return ciphertext;
 }
