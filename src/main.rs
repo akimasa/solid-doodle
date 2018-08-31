@@ -22,8 +22,8 @@ fn main() {
     let mut blocks: usize = 0;
     while endpos > pos + 16 {
         blocks = (endpos - pos) / 16;
-        if blocks > 100000 {
-            blocks = 100000;
+        if blocks > 1000 {
+            blocks = 1000;
         }
         // println!("blocks:{}", blocks);
         if blocks == 0 {
