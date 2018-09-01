@@ -4,8 +4,10 @@ extern crate hexdump;
 use hexdump::hexdump;
 use std::io::{BufWriter, Write, SeekFrom, Seek};
 use std::fs::OpenOptions;
+use std::time::{Duration, Instant};
 
 fn main() {
+    benchmark();
 
     println!("Hello, world!");
 
@@ -71,4 +73,30 @@ let mut ciphertext = encrypt(
     &data).unwrap();
     ciphertext.truncate(len*16);
     return ciphertext;
+}
+fn benchmark() {
+    let block_len = 1000;
+    let block_size = block_len * 16;
+    let mut blocks = 1000;
+
+    let start = Instant::now();
+    for i in 1..blocks {
+        get_block(i,block_len);
+    }
+    let end = start.elapsed();
+    let time: f64 = end.as_secs() as f64 + end.subsec_micros() as f64 / 1000.0 / 1000.0;
+    blocks = (1000.0 / time * 3.0) as usize;
+
+    println!("blocks={}", blocks);
+
+    let start = Instant::now();
+    for i in 1..blocks {
+        get_block(i,block_len);
+    }
+    let end = start.elapsed();
+    let time: f64 = end.as_secs() as f64 + end.subsec_micros() as f64 / 1000.0 / 1000.0;
+    println!("time:{}", time);
+    let throughput = (blocks * block_size) as f64 / time / 1000.0 / 1000.0;
+    println!("{}MB/s", throughput);
+
 }
