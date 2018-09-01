@@ -19,9 +19,8 @@ fn main() {
     println!("{}", endpos);
     fwriter.write(&blk).unwrap();
     let mut pos: usize = 0;
-    let mut blocks: usize = 0;
     while endpos > pos + 16 {
-        blocks = (endpos - pos) / 16;
+        let mut blocks = (endpos - pos) / 16;
         if blocks > 1000 {
             blocks = 1000;
         }
