@@ -1,2 +1,8 @@
+Need when MSVC ABI
 $env:PATH="$env:PATH;C:\OpenSSL-Win64\bin"
 $env:OPENSSL_DIR="C:\OpenSSL-Win64"
+
+Need when GNU ABI
+$env:PATH="$env:PATH;C:\tools\msys64\mingw64\bin"
+$env:OPENSSL_LIB_DIR="C:\OpenSSL-Win64\"
+$env:OPENSSL_INCLUDE_DIR="C:\OpenSSL-Win64\include"
