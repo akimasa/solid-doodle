@@ -33,7 +33,6 @@ os: Visual Studio 2015
 # channels to enable unstable features when building for nightly. Or you could add additional
 # matrix entries to test different combinations of features.
 environment:
-  OPENSSL_STATIC: 1
   matrix:
 
 
@@ -43,13 +42,13 @@ environment:
     - channel: stable
       target: x86_64-pc-windows-gnu
       MSYS_BITS: 64
-      OPENSSL_LIB_DIR: C:\OpenSSL-Win64
+      OPENSSL_LIB_DIR: C:\OpenSSL-Win64\
       OPENSSL_INCLUDE_DIR: C:\OpenSSL-Win64\include
   # Stable 32-bit GNU
     - channel: stable
       target: i686-pc-windows-gnu
       MSYS_BITS: 32
-      OPENSSL_LIB_DIR: C:\OpenSSL-Win32
+      OPENSSL_LIB_DIR: C:\OpenSSL-Win32\
       OPENSSL_INCLUDE_DIR: C:\OpenSSL-Win32\include
 
 ### MSVC Toolchains ###
@@ -112,6 +111,9 @@ before_deploy:
   - mkdir staging
   # TODO update this part to copy the artifacts that make sense for your project
   - copy target\release\rust_openssl.exe staging
+  - copy %OPENSSL_DIR%\bin\libcrypto*.dll staging
+  - copy %OPENSSL_DIR%\bin\libssl*.dll staging
+  - copy %OPENSSL_DIR%\bin\msvcr*.dll staging
   - cd staging
     # release zipfile will look like 'rust-everywhere-v1.2.3-x86_64-pc-windows-msvc'
   - 7z a ../%APPVEYOR_PROJECT_NAME%-%APPVEYOR_REPO_COMMIT%-%TARGET%.zip *
