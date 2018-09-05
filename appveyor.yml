@@ -111,9 +111,12 @@ before_deploy:
   - mkdir staging
   # TODO update this part to copy the artifacts that make sense for your project
   - copy target\release\rust_openssl.exe staging
-  - copy %OPENSSL_DIR%\bin\libcrypto*.dll staging
-  - copy %OPENSSL_DIR%\bin\libssl*.dll staging
-  - copy %OPENSSL_DIR%\bin\msvcr*.dll staging
+  - if defined OPENSSL_DIR copy %OPENSSL_DIR%\bin\libcrypto*.dll staging
+  - if defined OPENSSL_DIR copy %OPENSSL_DIR%\bin\libssl*.dll staging
+  - if defined OPENSSL_DIR copy %OPENSSL_DIR%\bin\msvcr*.dll staging
+  - if defined OPENSSL_LIB_DIR copy %OPENSSL_DIR%\bin\libeay*.dll staging
+  - if defined OPENSSL_LIB_DIR copy %OPENSSL_DIR%\bin\ssleay*.dll staging
+  - if defined OPENSSL_LIB_DIR copy %OPENSSL_DIR%\bin\msvcr*.dll staging
   - cd staging
     # release zipfile will look like 'rust-everywhere-v1.2.3-x86_64-pc-windows-msvc'
   - 7z a ../%APPVEYOR_PROJECT_NAME%-%APPVEYOR_REPO_COMMIT%-%TARGET%.zip *
