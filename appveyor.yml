@@ -111,6 +111,7 @@ before_deploy:
   - mkdir staging
   # TODO update this part to copy the artifacts that make sense for your project
   - copy target\release\rust_openssl.exe staging
+  - if defined OPENSSL_LIB_DIR set OPENSSL_DIR=%OPENSSL_LIB_DIR%
   - copy %OPENSSL_DIR%\bin\libcrypto*.dll staging
   - copy %OPENSSL_DIR%\bin\libssl*.dll staging
   - copy %OPENSSL_DIR%\bin\msvcr*.dll staging
