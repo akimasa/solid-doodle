@@ -35,6 +35,22 @@ os: Visual Studio 2015
 environment:
   matrix:
 
+
+### GNU Toolchains ###
+
+  # Stable 64-bit GNU
+    - channel: stable
+      target: x86_64-pc-windows-gnu
+      MSYS_BITS: 64
+      OPENSSL_LIB_DIR: C:\OpenSSL-Win64\
+      OPENSSL_INCLUDE_DIR: C:\OpenSSL-Win64\include
+  # Stable 32-bit GNU
+    - channel: stable
+      target: i686-pc-windows-gnu
+      MSYS_BITS: 32
+      OPENSSL_LIB_DIR: C:\OpenSSL-Win32\
+      OPENSSL_INCLUDE_DIR: C:\OpenSSL-Win32\include
+
 ### MSVC Toolchains ###
 
   # Stable 64-bit MSVC
@@ -74,6 +90,7 @@ install:
   - set PATH=%PATH%;%USERPROFILE%\.cargo\bin
   - rustc -vV
   - cargo -vV
+  - if defined MSYS_BITS set PATH=C:\msys64\mingw%MSYS_BITS%\bin;C:\msys64\usr\bin;%PATH%
 
 ## Build Script ##
 
