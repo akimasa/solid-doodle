@@ -2,8 +2,8 @@ extern crate openssl;
 use openssl::symm::{encrypt, Cipher};
 extern crate hexdump;
 use hexdump::hexdump;
-use std::io::{BufWriter, Write, SeekFrom, Seek};
 use std::fs::OpenOptions;
+use std::io::{BufWriter, Seek, SeekFrom, Write};
 use std::time::{Duration, Instant};
 
 fn main() {
@@ -11,10 +11,15 @@ fn main() {
 
     println!("Hello, world!");
 
-    let blk = get_block(1,5);
+    let blk = get_block(1, 5);
     hexdump(&blk);
 
-    let mut file = OpenOptions::new().read(true).write(true).create(true).open("testfile.bin").expect("open file error");
+    let mut file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open("testfile.bin")
+        .expect("open file error");
     let endpos = file.seek(SeekFrom::End(0)).expect("seek error") as usize;
     file.seek(SeekFrom::Start(0)).expect("seek error2");
     let mut fwriter = BufWriter::new(file);
@@ -30,48 +35,44 @@ fn main() {
         if blocks == 0 {
             break;
         }
-        let blk = get_block(pos/16,blocks);
+        let blk = get_block(pos / 16, blocks);
         fwriter.write(&blk).unwrap();
         pos += blocks * 16;
     }
-    println!("pos,endpos:{},{}", pos,endpos);
+    println!("pos,endpos:{},{}", pos, endpos);
     if endpos > pos {
-        let blk = get_block(pos/16,1);
-        fwriter.write(&blk[0..(endpos-pos)]).unwrap();
+        let blk = get_block(pos / 16, 1);
+        fwriter.write(&blk[0..(endpos - pos)]).unwrap();
     }
-    println!("pos,endpos:{},{}", pos,endpos);
+    println!("pos,endpos:{},{}", pos, endpos);
 }
 
-fn u64_to_u8_arr(x:u64) -> [u8;16] {
-    let b1 : u8 = ((x >> 56) & 0xff) as u8;
-    let b2 : u8 = ((x >> 48) & 0xff) as u8;
-    let b3 : u8 = ((x >> 40) & 0xff) as u8;
-    let b4 : u8 = ((x >> 32) & 0xff) as u8;
-    let b5 : u8 = ((x >> 24) & 0xff) as u8;
-    let b6 : u8 = ((x >> 16) & 0xff) as u8;
-    let b7 : u8 = ((x >> 8) & 0xff) as u8;
-    let b8 : u8 = (x & 0xff) as u8;
+fn u64_to_u8_arr(x: u64) -> [u8; 16] {
+    let b1: u8 = ((x >> 56) & 0xff) as u8;
+    let b2: u8 = ((x >> 48) & 0xff) as u8;
+    let b3: u8 = ((x >> 40) & 0xff) as u8;
+    let b4: u8 = ((x >> 32) & 0xff) as u8;
+    let b5: u8 = ((x >> 24) & 0xff) as u8;
+    let b6: u8 = ((x >> 16) & 0xff) as u8;
+    let b7: u8 = ((x >> 8) & 0xff) as u8;
+    let b8: u8 = (x & 0xff) as u8;
     return [0, 0, 0, 0, 0, 0, 0, 0, b1, b2, b3, b4, b5, b6, b7, b8];
 }
 
-fn get_block(init:usize, len:usize) -> Vec<u8> {
-        let cipher = Cipher::aes_128_ecb();
-let mut data = vec![0; len*16];
-let key = b"\x01\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
-let iv = b"\x01\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07";
-for i in 0..len {
-    let blk = u64_to_u8_arr((i+init) as u64);
-    for j in 0..16 {
-        data[i*16+j] = blk[j];
+fn get_block(init: usize, len: usize) -> Vec<u8> {
+    let cipher = Cipher::aes_128_ecb();
+    let mut data = vec![0; len * 16];
+    let key = b"\x01\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+    let iv = b"\x01\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07";
+    for i in 0..len {
+        let blk = u64_to_u8_arr((i + init) as u64);
+        for j in 0..16 {
+            data[i * 16 + j] = blk[j];
+        }
     }
-}
-// hexdump(&data);
-let mut ciphertext = encrypt(
-    cipher,
-    key,
-    Some(iv),
-    &data).unwrap();
-    ciphertext.truncate(len*16);
+    // hexdump(&data);
+    let mut ciphertext = encrypt(cipher, key, Some(iv), &data).unwrap();
+    ciphertext.truncate(len * 16);
     return ciphertext;
 }
 fn benchmark() {
@@ -81,7 +82,7 @@ fn benchmark() {
 
     let start = Instant::now();
     for i in 1..blocks {
-        get_block(i,block_len);
+        get_block(i, block_len);
     }
     let end = start.elapsed();
     let time: f64 = end.as_secs() as f64 + end.subsec_micros() as f64 / 1000.0 / 1000.0;
@@ -91,12 +92,11 @@ fn benchmark() {
 
     let start = Instant::now();
     for i in 1..blocks {
-        get_block(i,block_len);
+        get_block(i, block_len);
     }
     let end = start.elapsed();
     let time: f64 = end.as_secs() as f64 + end.subsec_micros() as f64 / 1000.0 / 1000.0;
     println!("time:{}", time);
     let throughput = (blocks * block_size) as f64 / time / 1000.0 / 1000.0;
     println!("{}MB/s", throughput);
-
 }
