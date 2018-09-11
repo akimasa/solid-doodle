@@ -7,3 +7,4 @@ authors = ["Akimasa Tateba <akimasa@gmail.com>"]
 openssl = "0.10.11"
 hexdump = "0.1.0"
 clap = "2.32.0"
+crc32c = "0.4"

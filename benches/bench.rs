@@ -4,6 +4,7 @@ extern crate test;
 
 extern crate openssl;
 use openssl::symm::{encrypt, Cipher};
+extern crate crc32c;
 
 pub fn add_two(a: i32) -> i32 {
     a + 2
@@ -48,12 +49,17 @@ let ciphertext = encrypt(
         assert_eq!(4, add_two(2));
     }
 
-    #[bench]
+    // #[bench]
     fn bench_block1000k(b: &mut Bencher) {
         b.iter(|| get_block(1,1000*1000));
     }
     #[bench]
     fn bench_block1000(b: &mut Bencher) {
         b.iter(|| get_block(1,1000));
+    }
+     #[bench]
+    fn bench_crc32c(b: &mut Bencher) {
+    let mut message : [u8; 10240] = [0; 10240];
+        b.iter(|| crc32c::crc32c(&message));
     }
 }
